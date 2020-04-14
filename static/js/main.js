@@ -1,24 +1,27 @@
 
-
-const fileinput = element_id("fileinput")
-const trainCount = element_id('train')
-const testCount = element_id('test')
-const dataset_result = element_id('divide_result')
-
 var colname = Array()
 var dataset = Array()
 
 var Trainset = null
 var Testset = null
 
-
 const Send = async () => {
-    table.innerHTML = ""
+    $('#table').empty()
     dataset = Array()
 
-    const files = fileinput.files;
+    const files = $("#fileinput")[0].files;
 
-    [...files].map(async (file) => {
+    const fr = new FileReader()
+
+    fr.onloadend = () =>{
+        parseCsvToArray(fr.result)
+        dataSetToTable()
+    }
+
+    fr.readAsText(files[0], encoding="utf8")
+    
+    /*
+    [.map.files].map(async (file) => {
         const fr = new FileReader()
 
         fr.onloadend = () =>{
@@ -28,7 +31,7 @@ const Send = async () => {
 
         fr.readAsText(file, encoding="utf8")
     })
-
+    */
     /*
     [...files].map(async (img) => {
         const data = new FormData();
@@ -90,45 +93,41 @@ function dataSetToTable() {
     table += '</tr>';
     table += '</tbody>';
     table += '</table>';
-    element_id('table').innerHTML += table;
+    $("#table").html(table);
+
+
 }
 
 const divide_ratio = () => {
-    let v = parseInt(trainCount.value)
-    testCount.value = String(10 - v)
+    let v = parseInt($('#train').val())
+    $('#test').val(String(10 - v))
 }
 
 const divideDataSet = () => {
-    let v = parseInt(trainCount.value)
+    if(dataset.length == 0){
+        alert("No DataSet!")
+        return
+    }
+    console.log($('#train').val())
+    let v = parseInt($('#train').val())
     let ratio = parseInt(dataset.length * (v/10))
-    console.log(ratio)
     Trainset = dataset.slice(1, ratio)
     TestSet = dataset.slice(ratio, dataset.length)
-    element_id('divide_result').innerHTML = `${Trainset.length} Train samples \n ${TestSet.length} Test samples`
+    $("#divide_result").html(`${Trainset.length} Train samples \n ${TestSet.length} Test samples`)
 }
 
-var t = Array()
-var ty = Array()
 
-function test()
-{
-    for(var i=0; i < 100; i++){
-        t.push(dataset[i].slice(1,3))
-    }
+function load() {
 
-    for(var i=0; i < 100; i++){
-        if(dataset[i][5] == 'setosa')
-        {
-            ty.push(1)
-        }else{
-            ty.push(0)
-        }
-    }
+    $("#fileinput").change(function(){Send()})
+    $('#train').change(function(){divide_ratio()})
+    $("#divide").click(function(){divideDataSet()})
+    
+    addTablink()
+    addTabMenu()
+
+    show_menu('input')
+    
+    $("#train").val("8")
+    divide_ratio()
 }
-
-element_id('divide').addEventListener('click', () => divideDataSet())
-fileinput.addEventListener('change', () => Send())
-trainCount.addEventListener('change', () => divide_ratio())
-
-trainCount.value = "8"
-divide_ratio()

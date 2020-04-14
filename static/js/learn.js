@@ -1,9 +1,8 @@
 
 
-const model_input = element_id("model_input")
+const model_input = $("#model_input")
 
-var model = null
-
+//var model = null
 
 const load_model = () => {
     let file = model_input.files[0]
@@ -28,9 +27,9 @@ const model_test = () => {
     test()
 }
 
-model_input.addEventListener('change', () => load_model())
+model_input.bind('change', () => load_model())
 
-const fit = () => {
+const fit = async () => {
     const history = await model.fit(tf.ones([8, 10]),
         tf.ones([8, 1]), {
         batchSize: 4,
