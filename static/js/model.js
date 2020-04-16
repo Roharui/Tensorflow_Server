@@ -10,16 +10,28 @@ const menuArr = {
     {
         inputShape: ['shape', (x) => {return x}],
         name : ['string', (x) => {return x}],
-        dtype: ['enum', (x) => {return x}]
+        dtype: ['dtype', (x) => {return x}]
     },
     "dense" :
     {
         units: ['int', (x) => {return x}],
         name : ['string', (x) => {return x}],
-        activation : ['enum', (x) => {return x}],
+        activation : ['activation', (x) => {return x}],
         inputShape: ['shape', (x) => {return x}]
     }
     
+}
+
+const inputTag = {
+    "shape" : {
+        html : $('<h5>Testing...</h5>')
+    },
+    "string" : {
+        html : $('<input type="text"></input>')
+    },
+    "dtype" : {
+        html : $('<select name="dtype"></select>')
+    }
 }
 
 const LayerArr = Array()
@@ -38,7 +50,7 @@ dense_menu
 function addTablink(){
     //탭 버튼
     Object.keys(LayerType).forEach(x => {
-        let div = $(`<button class="tablink">${x}</button>`)
+        let div = $(`<button type="button" class="list-group-item list-group-item-action">${x}</button>`)
 
         //div.setAttribute('id', x)
         div.click(function(){show_menu(x)})
@@ -54,9 +66,9 @@ function addTabMenu(){
         let div = $(`<div id=${x} class="tabcontent" style="display: none;"></div>`)
         let content = getMenuContent(menuArr[x])
 
-        let btn = $('<button>ADD</button>')
+        let btn = $('<button class="btn">ADD</button>')
         btn.click(function(){
-
+            $('#design_content').append($('<p>hello</p>'))
         })
 
         div.append(content)

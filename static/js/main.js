@@ -71,14 +71,16 @@ const parseCsvToArray = (data) => {
 }
 
 function dataSetToTable() {
-    var table = '<table>';
-    table += '<thead>';
+    var table = '<table class="table table-striped">';
+    table += '<thead class="thead-dark">';
     table += '<tr>';
     colname.forEach((x) => {
-        table += '<th>'
+        table += '<th scope="col">'
         table += String(x)
         table += '</th>'
     })
+    table += '</thead>'
+    table += '<tbody>'
     table += '</tr>'
     dataset.slice(0, 5).forEach(x => {
         table += '<tr>';
@@ -130,4 +132,9 @@ function load() {
     
     $("#train").val("8")
     divide_ratio()
+
 }
+
+$(document).ready(function(){
+    load()
+})

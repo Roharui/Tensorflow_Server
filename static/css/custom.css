@@ -1,0 +1,14 @@
+
+#design_controller{
+    border: 1px solid black;
+}
+
+div#tab{
+    display: block;
+    width: 15%;
+}
+
+div#menu_content{
+    display: block;
+    width: auto;
+}
