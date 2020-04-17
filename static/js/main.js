@@ -15,6 +15,7 @@ const Send = async () => {
 
     fr.onloadend = () =>{
         parseCsvToArray(fr.result)
+        dataset = shuffle(dataset)
         dataSetToTable()
     }
 
@@ -110,13 +111,31 @@ const divideDataSet = () => {
         alert("No DataSet!")
         return
     }
-    console.log($('#train').val())
     let v = parseInt($('#train').val())
     let ratio = parseInt(dataset.length * (v/10))
-    Trainset = dataset.slice(1, ratio)
+    Trainset = dataset.slice(0, ratio)
     TestSet = dataset.slice(ratio, dataset.length)
     $("#divide_result").html(`${Trainset.length} Train samples \n ${TestSet.length} Test samples`)
 }
+
+function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+  
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+  
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+  
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+  
+    return array;
+  }
 
 
 function load() {
@@ -125,6 +144,7 @@ function load() {
     $('#train').change(function(){divide_ratio()})
     $("#divide").click(function(){divideDataSet()})
     
+    setNamingModel()
     addTablink()
     addTabMenu()
 
@@ -134,7 +154,3 @@ function load() {
     divide_ratio()
 
 }
-
-$(document).ready(function(){
-    load()
-})
