@@ -10,7 +10,7 @@ allow_file = ['application/vnd.ms-excel']
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index_bs.html')
 
 @app.route('/dataset', methods=['POST'])
 def dataset():

@@ -56,6 +56,10 @@ const inputVal = {
         return result
     },
     "name" : (ele) => {
+        if(ele.indexOf(' ') >= 0){
+            alert("You Can't insert Blank Space in Name")
+            return "Error"
+        }
         return ele
     },
     "dtype" : (ele) => {
@@ -70,6 +74,9 @@ const inputVal = {
 }
 
 const LayerArr = Array()
+
+var firstLayer = () => {return {inputShape:[input.length], name:"INPUT", dtype:"float32"}}
+var lastLayer  = () => {return {units:output.length, name:"OUTPUT"}}
 
 function NameModel(){
     if($('#model-name').val() == ''){ alert("You Can't set model name as blank"); return}
@@ -151,7 +158,9 @@ function getInputVal(btn){
     {
         let c = $(input[i])
         if(c.val() == ''){continue}
-        result[c.attr('name')] = inputVal[c.attr('name')](c.val())
+        let value = inputVal[c.attr('name')](c.val())
+        if(value == "Error"){ continue }
+        result[c.attr('name')] = value
     }
 
     return result
@@ -165,9 +174,11 @@ function addLayer(layer, type){
 function showLayer(){
     $('#design_content').empty()
     //모델 시각화
-    $('#design_content').append(
-        $(`<div>${JSON.stringify(model)}</div>`)
-    )
+    model.layers.forEach(x => {
+        $('#design_content').append(
+            layerAsType(x)
+        )
+    })
 }
 
 function hide_menu(){

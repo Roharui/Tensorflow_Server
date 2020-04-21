@@ -5,9 +5,13 @@ var dataset = Array()
 var Trainset = null
 var Testset = null
 
+var input = Array()
+var output = Array()
+
 const Send = async () => {
     $('#table').empty()
     dataset = Array()
+    colname = Array()
 
     const files = $("#fileinput")[0].files;
 
@@ -17,6 +21,7 @@ const Send = async () => {
         parseCsvToArray(fr.result)
         dataset = shuffle(dataset)
         dataSetToTable()
+        onload_inoutput()
     }
 
     fr.readAsText(files[0], encoding="utf8")
@@ -50,7 +55,6 @@ const Send = async () => {
 const parseCsvToArray = (data) => {
     var allRows = data.split(/\r?\n|\r/);
     for (var singleRow = 0; singleRow < allRows.length; singleRow++) {
-
       const arr = Array()
       var rowCells = allRows[singleRow].split(',');
       for (var rowCell = 0; rowCell < rowCells.length; rowCell++) {
@@ -69,6 +73,8 @@ const parseCsvToArray = (data) => {
         dataset.push(arr)
       }
     }
+
+    $('#dataset_info').text(`${dataset.length} rows ${colname.length} colums`)
 }
 
 function dataSetToTable() {
@@ -96,9 +102,8 @@ function dataSetToTable() {
     table += '</tr>';
     table += '</tbody>';
     table += '</table>';
+
     $("#table").html(table);
-
-
 }
 
 const divide_ratio = () => {
@@ -116,6 +121,40 @@ const divideDataSet = () => {
     Trainset = dataset.slice(0, ratio)
     TestSet = dataset.slice(ratio, dataset.length)
     $("#divide_result").html(`${Trainset.length} Train samples \n ${TestSet.length} Test samples`)
+}
+
+const onload_inoutput = () => {
+    colname.forEach(x => {
+        let con_x = $(`<label class="btn btn-primary"><input type="checkbox" value="${x}">${x}</label>`)
+        let con_y = $(`<label class="btn btn-primary"><input type="checkbox" value="${x}">${x}</label>`)
+
+        con_x.change(function(){check_input(this)})
+        con_y.change(function(){check_output(this)})
+
+        $('#input_content').append(con_x)
+        $('#output_content').append(con_y)
+    })
+    
+}
+
+const check_input = (e) => {
+    let x = $(e).parent().find("input").toArray().filter(s => {
+        return s.checked
+    })
+
+    input = x.map(s => {
+        return s.value
+    })
+}
+
+const check_output = (e) => {
+    let x = $(e).parent().find("input").toArray().filter(s => {
+        return s.checked
+    })
+
+    output = x.map(s => {
+        return s.value
+    })
 }
 
 function shuffle(array) {

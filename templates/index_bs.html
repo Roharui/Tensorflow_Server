@@ -17,6 +17,7 @@
 
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
         <script src="../static/js/main.js"></script>
+        <script src="../static/js/modelLayerDesign.js"></script>
         <script src="../static/js/model.js"></script>
         <script src="../static/js/learn.js"></script>
         <script>
@@ -50,6 +51,7 @@
                         <label class="custom-file-label" for="inputGroupFile01">Choose .csv file</label>
                         </div>
                     </div>
+                    <span id="dataset_info"></span>
                     <div id="table"></div>
                     <hr>
                     <div id="divide_data" style="width: 30%;">
@@ -60,12 +62,25 @@
                         </div>
                         <div id="divide_result"></div>
                     </div>
+                    <hr>
+                    <div id="in_output" class="row">
+                        <div id="x_input" class="column">
+                            <h5 class="text-center">INPUT</h5>
+                            <div id="input_content" class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                            </div>
+                        </div>
+                        <div id="y_output" class="column">
+                            <h5 class="text-center">OUTPUT</h5>
+                            <div id="output_content" class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                          <span class="input-group-text" id="basic-addon3">Model Name : </span>
+                          <span class="input-group-text" id="basic-addon3">Model Name</span>
                         </div>
                         <input type="text" class="form-control" id="model-name" aria-describedby="basic-addon3">
                         <div class="input-group-append">
@@ -83,7 +98,7 @@
                 <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
                     <input type="file" id="model_input" multiple accept=".json">
                 </div>
-
+                <div></div>
             </div>
         <!--Testing blank-->
 
