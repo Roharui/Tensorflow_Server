@@ -73,7 +73,7 @@ const inputVal = {
     }
 }
 
-const LayerArr = Array()
+var LayerArr = Array()
 
 var firstLayer = () => {return {inputShape:[input.length], name:"INPUT", dtype:"float32"}}
 var lastLayer  = () => {return {units:output.length, name:"OUTPUT"}}
@@ -103,22 +103,29 @@ function addTabMenu(){
     //메뉴 div
     Object.keys(menuArr).forEach(x => {
 
-        let div = $(`<div id=${x} class="tabcontent" style="display: none;"></div>`)
-        let content = getMenuContent(menuArr[x])
-
-        let btn = $('<button class="btn">ADD</button>')
-        btn.click(function(){
-            let value = getInputVal(this)
-            addLayer(value, x)
-        })
-
-        div.append(content)
-        div.append(btn)
+        let div = TabMenuContent(x)
 
         //console.log(div.html())
 
         $('#menu_content').append(div)
     })
+}
+
+function TabMenuContent(x){
+    let div = $(`<div id=${x} class="tabcontent" style="display: none;"></div>`)
+    let content = getMenuContent(menuArr[x])
+
+    let btn = $('<button class="btn">ADD</button>')
+    btn.click(function(){
+        let value = getInputVal(this)
+        LayerArr.push([value, x])
+        setLayer()
+    })
+
+    div.append(content)
+    div.append(btn)
+
+    return div
 }
 
 function getMenuContent(param_type){
@@ -130,7 +137,7 @@ function getMenuContent(param_type){
         let input_box = getInputTag(x)
         
         span.append(input_box)
-
+        
         div.append(span)
     });
 
@@ -166,9 +173,19 @@ function getInputVal(btn){
     return result
 }
 
-function addLayer(layer, type){
-    model.add(LayerType[type](layer))
+function setLayer(){
+    model = new tf.Sequential()
+    LayerArr.forEach((layer) => {
+        
+        model.add(LayerType[layer[1]](layer[0]))
+    })
     showLayer()
+}
+
+function modelSummary(){
+    model.summary(undefined, undefined, function(x) {
+        $('#summary_log').append(`<p>${x}</p>`)
+    })
 }
 
 function showLayer(){
@@ -179,6 +196,12 @@ function showLayer(){
             layerAsType(x)
         )
     })
+}
+
+function delLayer(id){
+    LayerArr = LayerArr.filter(x => id != x[0].name)
+    setLayer()
+    showLayer()
 }
 
 function hide_menu(){
