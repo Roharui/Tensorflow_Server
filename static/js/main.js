@@ -145,6 +145,7 @@ const check_input = (e) => {
     input = x.map(s => {
         return s.value
     })
+    setLayer()
 }
 
 const check_output = (e) => {
@@ -155,6 +156,7 @@ const check_output = (e) => {
     output = x.map(s => {
         return s.value
     })
+    setLayer()
 }
 
 function shuffle(array) {
@@ -191,5 +193,4 @@ function load() {
     
     $("#train").val("8")
     divide_ratio()
-
 }

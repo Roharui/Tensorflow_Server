@@ -74,12 +74,19 @@ const inputVal = {
 }
 
 var LayerArr = Array()
+var addLoc = -1
 
-var firstLayer = () => {return {inputShape:[input.length], name:"INPUT", dtype:"float32"}}
-var lastLayer  = () => {return {units:output.length, name:"OUTPUT"}}
+var firstLayer = () => 
+{   
+    return { layer : {inputShape:[input.length], name:"INPUT", dtype:"float32"}, type : 'input'}
+}
+var lastLayer  = () => 
+{
+    return { layer : {units:output.length, name:"OUTPUT"}, type : 'dense'} 
+}
 
 function NameModel(){
-    if($('#model-name').val() == ''){ alert("You Can't set model name as blank"); return}
+    if($('#model-name').val() == ''){ return}
     model.name = $('#model-name').val()   
 }
 
@@ -118,7 +125,7 @@ function TabMenuContent(x){
     let btn = $('<button class="btn">ADD</button>')
     btn.click(function(){
         let value = getInputVal(this)
-        LayerArr.push([value, x])
+        addLayer(value, x)
         setLayer()
     })
 
@@ -173,35 +180,75 @@ function getInputVal(btn){
     return result
 }
 
+function addLayer(layerx, typex){
+    let result = { layer : layerx,
+                    type : typex}
+
+    if(addLoc == -1){
+        LayerArr.push(result)
+        return
+    }
+
+    LayerArr.splice(addLoc + 1, 0, result)
+}
+
 function setLayer(){
     model = new tf.Sequential()
-    LayerArr.forEach((layer) => {
-        
-        model.add(LayerType[layer[1]](layer[0]))
+    NameModel()
+
+    let x = firstLayer()
+    let y = lastLayer()
+
+    if(input.length != 0){
+        model.add(LayerType[x.type](x.layer))
+    }
+    
+    LayerArr.forEach((i) => {
+        model.add(LayerType[i.type](i.layer))
     })
+
+    if(output.length != 0)
+    {
+        model.add(LayerType[y.type](y.layer))
+    }
+
+    $('#model-name').val()
     showLayer()
 }
 
 function modelSummary(){
+    $('#summary_log').empty()
     model.summary(undefined, undefined, function(x) {
-        $('#summary_log').append(`<p>${x}</p>`)
+        $('#summary_log').append(`<p class="text-center">${x}</p>`)
     })
 }
 
 function showLayer(){
+    let num = 0
+    if(input.length != 0){
+        num --
+    }
     $('#design_content').empty()
     //모델 시각화
     model.layers.forEach(x => {
         $('#design_content').append(
-            layerAsType(x)
+            layerAsType(x, num)
         )
+        num ++
     })
 }
 
 function delLayer(id){
-    LayerArr = LayerArr.filter(x => id != x[0].name)
+    console.log(id)
+    id = parseInt($(id).parent().attr('xid'))
+    LayerArr.splice(id, 1)
     setLayer()
     showLayer()
+}
+
+
+function reviseLayer(id){
+
 }
 
 function hide_menu(){
