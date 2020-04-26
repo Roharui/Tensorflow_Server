@@ -20,7 +20,7 @@ const Send = async () => {
     fr.onloadend = () =>{
         parseCsvToArray(fr.result)
         dataset = shuffle(dataset)
-        dataSetToTable()
+        $("#table").append(dataSetToTable(colname));
         onload_inoutput()
     }
 
@@ -77,33 +77,53 @@ const parseCsvToArray = (data) => {
     $('#dataset_info').text(`${dataset.length} rows ${colname.length} colums`)
 }
 
-function dataSetToTable() {
-    var table = '<table class="table table-striped">';
-    table += '<thead class="thead-dark">';
-    table += '<tr>';
-    colname.forEach((x) => {
-        table += '<th scope="col">'
-        table += String(x)
-        table += '</th>'
+function dataSetToTable(cols) {
+
+    var table = $('<table class="table table-striped"></table>')
+
+    var head = datatableHead(cols)
+    var body = datatableBody(cols)
+
+    table.append(head)
+    table.append(body)
+    
+    return table
+}
+
+function datatableHead(cols){
+
+    var thead =  $('<thead class="thead-dark"></thead>')
+    //colname.forEach((x) => {
+    cols.forEach((x) => {
+        thead.append($(`<th scope="col">${String(x)}</th>`))
     })
-    table += '</thead>'
-    table += '<tbody>'
-    table += '</tr>'
-    dataset.slice(0, 5).forEach(x => {
-        table += '<tr>';
-        x.forEach(y => {
-            table += '<td>'
-            table += String(y)
-            table += '</td>'
+
+    return thead
+}
+
+function datatableBody(cols){
+
+    var tbody = $('<tbody></tbody>')
+
+    let mask = colsToIdxArr(cols)
+
+    dataset.slice(0, 5).forEach((x) => {
+        let tr = $('<tr></tr>')
+        x.forEach((y, i) => {
+            if(mask[i]){
+                tr.append($(`<td>${String(y)}</td>`))
+            }
         })
-        table += '</tr>'
+        tbody.append(tr)
     })
 
-    table += '</tr>';
-    table += '</tbody>';
-    table += '</table>';
+    return tbody
+}
 
-    $("#table").html(table);
+const colsToIdxArr = (cols) => {
+    return colname.map((x) => {
+        return (cols.indexOf(x) > -1)
+    })
 }
 
 const divide_ratio = () => {

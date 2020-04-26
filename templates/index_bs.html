@@ -20,6 +20,7 @@
         <script src="../static/js/modelLayerDesign.js"></script>
         <script src="../static/js/model.js"></script>
         <script src="../static/js/learn.js"></script>
+        <script src="../static/js/preprocessing.js"></script>
         <script>
             $(document).ready(function(){
                 load()
@@ -35,6 +36,9 @@
                 <li class="nav-item">
                   <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Dataset</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-preprocessing-tab" data-toggle="pill" href="#pills-preprocessing" role="tab" aria-controls="pills-preprocessing" aria-selected="false">Preprcessing</a>
+                  </li>
                 <li class="nav-item">
                   <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Model</a>
                 </li>
@@ -54,15 +58,6 @@
                     <span id="dataset_info"></span>
                     <div id="table"></div>
                     <hr>
-                    <div id="divide_data" style="width: 30%;">
-                        <div class="input-group mb-3">
-                            <input type="number" id="train" min="0" max="10" class="form-control"aria-describedby="basic-addon2">
-                            <input type="number" id="test" min="0" max="10" class="form-control" aria-describedby="basic-addon2" readonly>
-                            <button class="btn" id="divide">설정</button>
-                        </div>
-                        <div id="divide_result"></div>
-                    </div>
-                    <hr>
                     <div id="in_output" class="row">
                         <div id="x_input" class="column">
                             <h5 class="text-center">INPUT</h5>
@@ -74,6 +69,20 @@
                             <div id="output_content" class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="pills-preprocessing" role="tabpanel" aria-labelledby="pills-preprocessing-tab">
+                    <div id="type_table">
+                    </div>
+                    <hr>
+                    <div id="divide_data" style="width: 30%;">
+                        <div class="input-group mb-3">
+                            <input type="number" id="train" min="0" max="10" class="form-control"aria-describedby="basic-addon2">
+                            <input type="number" id="test" min="0" max="10" class="form-control" aria-describedby="basic-addon2" readonly>
+                            <button class="btn" id="divide">설정</button>
+                        </div>
+                        <div id="divide_result"></div>
                     </div>
                 </div>
                 

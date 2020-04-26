@@ -2,8 +2,17 @@
 
 const model_input = $("#model_input")
 
-//var model = null
+function getInputData() {
+    input.forEach(x => {
+        let idx = colname.indexOf(x)
+        dataset.forEach(y => {
 
+        })
+    })
+}
+
+//var model = null
+/*
 const load_model = () => {
     let file = model_input.files[0]
     let m_json = ""
@@ -37,3 +46,4 @@ const fit = async () => {
     });
 }
 
+*/
