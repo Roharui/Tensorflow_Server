@@ -2,14 +2,10 @@
 var colname = Array()
 var dataset = Array()
 
-var Trainset = null
-var Testset = null
-
-var input = Array()
+var input  = Array()
 var output = Array()
 
 const Send = async () => {
-    $('#table').empty()
     dataset = Array()
     colname = Array()
 
@@ -20,8 +16,7 @@ const Send = async () => {
     fr.onloadend = () =>{
         parseCsvToArray(fr.result)
         dataset = shuffle(dataset)
-        $("#table").append(dataSetToTable(colname));
-        onload_inoutput()
+        set_all_table()
     }
 
     fr.readAsText(files[0], encoding="utf8")
@@ -50,6 +45,15 @@ const Send = async () => {
         })
     })
     */
+}
+
+const set_all_table = () => {
+    $('.table').empty()
+
+    $("#table").append(dataSetToTable(colname));
+    onload_inoutput()
+    typeTable()
+
 }
 
 const parseCsvToArray = (data) => {
@@ -131,19 +135,10 @@ const divide_ratio = () => {
     $('#test').val(String(10 - v))
 }
 
-const divideDataSet = () => {
-    if(dataset.length == 0){
-        alert("No DataSet!")
-        return
-    }
-    let v = parseInt($('#train').val())
-    let ratio = parseInt(dataset.length * (v/10))
-    Trainset = dataset.slice(0, ratio)
-    TestSet = dataset.slice(ratio, dataset.length)
-    $("#divide_result").html(`${Trainset.length} Train samples \n ${TestSet.length} Test samples`)
-}
-
 const onload_inoutput = () => {
+    $('#input_content').empty()
+    $('#output_content').empty()
+
     colname.forEach(x => {
         let con_x = $(`<label class="btn btn-primary"><input type="checkbox" value="${x}">${x}</label>`)
         let con_y = $(`<label class="btn btn-primary"><input type="checkbox" value="${x}">${x}</label>`)
@@ -158,24 +153,22 @@ const onload_inoutput = () => {
 }
 
 const check_input = (e) => {
-    let x = $(e).parent().find("input").toArray().filter(s => {
-        return s.checked
-    })
-
-    input = x.map(s => {
-        return s.value
-    })
+    let idx = $(e).index()
+    if(input.includes(idx)){
+        input.splice(input.indexOf(idx), 1)
+    }else {
+        input.push(idx)
+    }
     setLayer()
 }
 
 const check_output = (e) => {
-    let x = $(e).parent().find("input").toArray().filter(s => {
-        return s.checked
-    })
-
-    output = x.map(s => {
-        return s.value
-    })
+    let idx = $(e).index()
+    if(output.includes(idx)){
+        output.splice(output.indexOf(idx), 1)
+    }else {
+        output.push(idx)
+    }
     setLayer()
 }
 
@@ -213,4 +206,6 @@ function load() {
     
     $("#train").val("8")
     divide_ratio()
+
+    $("#ohe").click(function(){doOHE()})
 }

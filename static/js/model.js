@@ -189,7 +189,7 @@ function addLayer(layerx, typex){
         return
     }
 
-    LayerArr.splice(addLoc + 1, 0, result)
+    LayerArr.splice(addLoc, 0, result)
 }
 
 function setLayer(){
@@ -239,8 +239,8 @@ function showLayer(){
 }
 
 function delLayer(id){
+    id = $(id).index() - 1
     console.log(id)
-    id = parseInt($(id).parent().attr('xid'))
     LayerArr.splice(id, 1)
     setLayer()
     showLayer()

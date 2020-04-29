@@ -2,7 +2,6 @@
 
 function layerAsType(layer, num){
     let result = $('<div class="p-3 mb-2 bg-primary text-white"></div>')
-    result.attr('xid', String(num))
     
     result.append($(`<h5>${layer.name}</h5>`))
 
@@ -25,13 +24,15 @@ function layerAsType(layer, num){
 
 function setStartLoc(e){
     //warning
+    e = $(e)
+
     clearStartLoc()
-    if(addLoc == parseInt(e.xid)){
+    if(addLoc == e.index()){
         addLoc = -1
         return
     }
-    addLoc = parseInt(e.xid)
-    $(e).attr('class', "p-3 mb-2 bg-warning text-white")
+    addLoc = e.index()
+    e.attr('class', "p-3 mb-2 bg-warning text-white")
 }
 
 function clearStartLoc(){
