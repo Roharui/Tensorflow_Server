@@ -1,158 +1,169 @@
 
 
 
-var ohe_target = Array()
-var ohe_dict = {}
+const P = {
+    dataset : dataset,
 
-var Trainset = null
-var Testset  = null
+    pData : {
+        x : Array(),
+        y : Array()
+    },
 
-var train_tensor = {x:null, y:null}
-var test_tensor  = {x:null, y:null}
+    usetLst : Array(),
 
-var sliced_dataset = Array()
+    OHE : true,
 
-function reviseDataset(idxArr, arr){
-    dataset.forEach((x, i) => {
-        x.forEach((_, j) => {
-            let idx = idxArr.indexOf(j)
-            if(idx != -1) {
-                dataset[i][j] = arr[idx][i]
+    tensor : null,
+
+    complie() {
+
+        let v = parseInt($('#train').val())
+        let ratio = parseInt(this.dataset.data.length * (v/10))
+
+        let tr_x = this.pData.x.slice(0, ratio)
+        let te_x = this.pData.x.slice(ratio, dataset.length)
+
+        let tr_y = this.pData.y.slice(0, ratio)
+        let te_y = this.pData.y.slice(ratio, dataset.length)
+
+        $("#divide_result").html(`${tr_x.length} Train samples \n ${te_x.length} Test samples`)
+
+        this.tensor =  {
+            train : {
+                x : tf.tensor(tr_x),
+                y : tf.tensor(tr_y)
+            },
+
+            test : {
+                x : tf.tensor(te_x),
+                y : tf.tensor(te_y)
             }
+        }
+    },
+
+    toXY(){
+        let i = this.dataset.input
+        let o = this.dataset.output
+
+        let data = this.transpose(this.dataset.data)
+
+        let _x = this.transpose(i.map((num) => {
+            return data[num]
+        }))
+
+        let _y = this.transpose(o.map((num) => {
+            return data[num]
+        }))
+
+        return  {
+            x : _x,
+            y : _y
+        }
+    },
+
+    transpose(data){
+        if(data.length == 0){ return null }
+
+        let result = Array()
+        data[0].forEach(_ => {
+            result.push(Array())
         })
-    })
-}
-
-function flatten(arr){
-    let result = Array()
-    arr.forEach(x => {
-        x.forEach(y => {
-            result.push(y)
+    
+        data.forEach((x, i) => {
+            x.forEach((y, j) => {
+                result[j].push(y)
+            })
         })
-    })
-    return result
-}
+        return result
+    },
 
-function transpose(arr){
-    let result = Array()
-    arr[0].forEach(_ => {
-        result.push(Array())
-    })
+    ohe(){
 
-    arr.forEach((x, i) => {
-        x.forEach((y, j) => {
-            result[j].push(y)
+        let y = this.pData.y
+
+        data = this.transpose(y)[0]
+
+        let {uset, len} = this.getUset(data)
+        this.usetLst.push(uset)
+
+        let result = data.map(x => {
+            return this.ohe_arr(uset[x], len)
         })
-    })
 
-    return result
-}
+        this.pData.y = result
+    },
 
-function uniqueDict(arr){
-    let key = Array.from(new Set(arr))
-    let result = {}
-    key.forEach((x, i) => {
-        result[x] = i
-    })
-    return result
-}
+    ohe_arr(x, len){
+        let result = Array()
 
-function rtVerArr(idxArr, data){
-    return data.map((x) => {
-        return x.filter((_, j) => {
-            return idxArr.indexOf(j) != -1
+        for(let i=0;i<len;i++){
+            result.push((x == i ? 1 : 0))
+        }
+        return result
+    },
+
+    getUset(data){
+        let key = Array.from(new Set(data))
+        let result = {}
+        key.forEach((x, i) => {
+            result[x] = i
         })
-    })
-}
+        return {uset:result, len:key.length}
+    },
 
-function ppString(idxArr) {
-    let usetLst = {}
-    let targetArr = rtVerArr(idxArr, dataset)
-    let TtargetArr = transpose(targetArr)
-    let result = TtargetArr.map((x, i) => {
-        let uset = uniqueDict(x)
-        usetLst[colname[idxArr[i]]] = uset
-        return x.map(y => {
-            return uset[y]
-        })
-    })
-    reviseDataset(idxArr, result)
-    return usetLst
-}
+    divideDataSet(){
+        let dataset = this.dataset.data
+        if(dataset.length == 0){
+            alert("No DataSet!")
+            return
+        }
+        let v = parseInt($('#train').val())
+        let ratio = parseInt(dataset.length * (v/10))
+    
+        //this.trainSet = dataset.slice(0, ratio)
+        //this.testSet = dataset.slice(ratio, dataset.length)
+    
+        //$("#divide_result").html(`${this.trainSet.length} Train samples \n ${this.testSet.length} Test samples`)
+    },
 
-function dataType(){
-    return dataset[0].map(x => {
-        return typeof(x)
-    })
+    do(){
+        this.pData = this.toXY()
+    }
+    
 }
 
 //==== type table
 
-function typeTable() {
-    setTarget()
-    resetTable()
-}
+function typeTable(){
 
-function resetTable(){
-    $("#type_table").empty()
-
-    var table = $('<table class="table table-striped"></table>')
-    var head = datatableHead(colname)
-
-    var body = $('<tbody id="dataType"></tbody>')
-    
-    dataType().forEach((x, i) => {
-        let td = $(`<td>${String(x)}</td>`)
-        if(ohe_target.includes(i)) { 
-            td.attr('class', 'bg-warning')
-        }
-        td.click(function(){oheClick(this)})
-        body.append(td)
-    })
-
-    table.append(head)
-    table.append(body)
-
-    $('#type_table').append(table)
-}
-
-
-function setTarget(){
-    ohe_target = Array()
-    dataType().map((x, i) => {
-        if(x == 'string') ohe_target.push(i)
-    })
-}
-
-function oheClick(e) {
-    let idx = $(e).index()
-    if(ohe_target.includes(idx)){
-        ohe_target.splice(ohe_target.indexOf(idx), 1)
-    }else {
-        ohe_target.push(idx)
+    let table_data = {
+        cols : dataset.input.map(x => {
+            return dataset.cols[x]
+        }),
+        data : Array(P.pData.x[0].map((x) => {
+            return typeof(x)
+        })),
     }
-    resetTable()
+
+    Table.toTable(table_data, $('#in_type_table'))
+
+    table_data = {
+        cols : dataset.output.map(x => {
+            return dataset.cols[x]
+        }),
+        data : Array(P.pData.y[0].map((x) => {
+            return typeof(x)
+        })),
+    }
+
+    Table.toTable(table_data, $('#out_type_table'))
 }
 
 // ====
 
-
-function doOHE() {
-    let x = ppString(ohe_target)
-    $('#ohe_result').text(JSON.stringify(x))
-    typeTable()
-}
-
-const divideDataSet = () => {
-    if(dataset.length == 0){
-        alert("No DataSet!")
-        return
-    }
+const divide_ratio = () => {
     let v = parseInt($('#train').val())
-    let ratio = parseInt(dataset.length * (v/10))
-    Trainset = dataset.slice(0, ratio)
-    Testset = dataset.slice(ratio, dataset.length)
-    $("#divide_result").html(`${Trainset.length} Train samples \n ${Testset.length} Test samples`)
+    $('#test').val(String(10 - v))
 }
 
 function dataset_compile() {
@@ -166,4 +177,10 @@ function dataset_compile() {
 
     train_tensor.y = tf.oneHot(tf.tensor(trt, 'int32'), 3)
     test_tensor.y = tf.oneHot(tf.tensor(tet, 'int32'), 3)
+}
+
+function view_P(){
+    $("#divide").click(function(){P.complie()})
+    $('#see_table').click(function(){typeTable()})
+    $('#ohe').click(function(){P.ohe()})
 }

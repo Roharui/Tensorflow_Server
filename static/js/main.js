@@ -1,22 +1,101 @@
 
-var colname = Array()
-var dataset = Array()
+const dataset = {
+    cols : Array(),
+    data : Array(),
 
-var input  = Array()
-var output = Array()
+    input  : Array(),
+    output : Array(),
+
+    reset(){
+        this.cols   = Array()
+        this.data   = Array()
+        this.input  = Array()
+        this.output = Array()
+    },
+
+    parseCsvToArray(result){
+        this.reset()
+
+        var allRows = result.split(/\r?\n|\r/);
+        for (var singleRow = 0; singleRow < allRows.length; singleRow++) {
+        const arr = Array()
+        var rowCells = allRows[singleRow].split(',');
+        for (var rowCell = 0; rowCell < rowCells.length; rowCell++) {
+            let x = rowCells[rowCell]
+            if(singleRow == 0) {
+                this.cols.push(x)
+            }
+            else{
+                x = parseFloat(x)
+                if(isNaN(x)){ x = rowCells[rowCell] }
+                arr.push(x)
+            }
+        }
+            if(singleRow != 0)
+            {
+                this.data.push(arr)
+            }
+        }
+
+        return `${dataset.data.length} rows ${dataset.cols.length} colums`
+    },
+
+    check_input(){
+        this.input = $.map($('#x_input').find('input'), (x, num) => {
+            return (x.checked?num:null)
+        })
+    },
+
+    check_output(){
+        this.output = $.map($('#y_output').find('input'), (x, num) => {
+            return (x.checked?num:null)
+        })
+    }
+
+}
+
+const Table = {
+    toTable(data, location) {
+        location.empty()
+
+        let table = $('<table class="table table-striped"></table>')
+
+        var thead =  $('<thead class="thead-dark"></thead>')
+        //colname.forEach((x) => {
+        data.cols.forEach((x) => {
+            thead.append($(`<th scope="col">${String(x)}</th>`))
+        })
+
+        table.append(thead)
+
+        var tbody = $('<tbody></tbody>')
+
+        data.data.slice(0, 5).forEach((x) => {
+            let tr = $('<tr></tr>')
+            x.forEach((y, i) => {
+                tr.append($(`<td>${String(y)}</td>`))
+            })
+            tbody.append(tr)
+        })
+
+        table.append(tbody)
+
+        location.append(table)
+    }
+}
 
 const Send = async () => {
-    dataset = Array()
-    colname = Array()
 
     const files = $("#fileinput")[0].files;
 
     const fr = new FileReader()
 
     fr.onloadend = () =>{
-        parseCsvToArray(fr.result)
-        dataset = shuffle(dataset)
-        set_all_table()
+        let text = dataset.parseCsvToArray(fr.result)
+        $('#dataset_info').text(text)
+
+        Table.toTable(dataset, $('#table'))
+        onload_inoutput()
     }
 
     fr.readAsText(files[0], encoding="utf8")
@@ -47,129 +126,21 @@ const Send = async () => {
     */
 }
 
-const set_all_table = () => {
-    $('.table').empty()
-
-    $("#table").append(dataSetToTable(colname));
-    onload_inoutput()
-    typeTable()
-
-}
-
-const parseCsvToArray = (data) => {
-    var allRows = data.split(/\r?\n|\r/);
-    for (var singleRow = 0; singleRow < allRows.length; singleRow++) {
-      const arr = Array()
-      var rowCells = allRows[singleRow].split(',');
-      for (var rowCell = 0; rowCell < rowCells.length; rowCell++) {
-          let x = rowCells[rowCell]
-          if(singleRow == 0) {
-              colname.push(x)
-          }
-          else{
-            x = parseFloat(x)
-            if(isNaN(x)){ x = rowCells[rowCell] }
-            arr.push(x)
-          }
-      }
-      if(singleRow != 0)
-      {
-        dataset.push(arr)
-      }
-    }
-
-    $('#dataset_info').text(`${dataset.length} rows ${colname.length} colums`)
-}
-
-function dataSetToTable(cols) {
-
-    var table = $('<table class="table table-striped"></table>')
-
-    var head = datatableHead(cols)
-    var body = datatableBody(cols)
-
-    table.append(head)
-    table.append(body)
-    
-    return table
-}
-
-function datatableHead(cols){
-
-    var thead =  $('<thead class="thead-dark"></thead>')
-    //colname.forEach((x) => {
-    cols.forEach((x) => {
-        thead.append($(`<th scope="col">${String(x)}</th>`))
-    })
-
-    return thead
-}
-
-function datatableBody(cols){
-
-    var tbody = $('<tbody></tbody>')
-
-    let mask = colsToIdxArr(cols)
-
-    dataset.slice(0, 5).forEach((x) => {
-        let tr = $('<tr></tr>')
-        x.forEach((y, i) => {
-            if(mask[i]){
-                tr.append($(`<td>${String(y)}</td>`))
-            }
-        })
-        tbody.append(tr)
-    })
-
-    return tbody
-}
-
-const colsToIdxArr = (cols) => {
-    return colname.map((x) => {
-        return (cols.indexOf(x) > -1)
-    })
-}
-
-const divide_ratio = () => {
-    let v = parseInt($('#train').val())
-    $('#test').val(String(10 - v))
-}
-
 const onload_inoutput = () => {
     $('#input_content').empty()
     $('#output_content').empty()
 
-    colname.forEach(x => {
+    dataset.cols.forEach(x => {
         let con_x = $(`<label class="btn btn-primary"><input type="checkbox" value="${x}">${x}</label>`)
         let con_y = $(`<label class="btn btn-primary"><input type="checkbox" value="${x}">${x}</label>`)
 
-        con_x.change(function(){check_input(this)})
-        con_y.change(function(){check_output(this)})
+        con_x.change(function(){dataset.check_input()})
+        con_y.change(function(){dataset.check_output()})
 
         $('#input_content').append(con_x)
         $('#output_content').append(con_y)
     })
     
-}
-
-const check_input = (e) => {
-    let idx = $(e).index()
-    if(input.includes(idx)){
-        input.splice(input.indexOf(idx), 1)
-    }else {
-        input.push(idx)
-    }
-    setLayer()
-}
-
-const check_output = (e) => {
-    let idx = $(e).index()
-    if(output.includes(idx)){
-        output.splice(output.indexOf(idx), 1)
-    }else {
-        output.push(idx)
-    }
-    setLayer()
 }
 
 function shuffle(array) {
@@ -189,14 +160,16 @@ function shuffle(array) {
     }
   
     return array;
-  }
+}
 
 
 function load() {
 
     $("#fileinput").change(function(){Send()})
     $('#train').change(function(){divide_ratio()})
-    $("#divide").click(function(){divideDataSet()})
+    $('#enroll').click(function(){P.do()})
+
+    view_P()
     
     setNamingModel()
     addTablink()
@@ -206,6 +179,4 @@ function load() {
     
     $("#train").val("8")
     divide_ratio()
-
-    $("#ohe").click(function(){doOHE()})
 }
