@@ -166,19 +166,6 @@ const divide_ratio = () => {
     $('#test').val(String(10 - v))
 }
 
-function dataset_compile() {
-    train_tensor.x = tf.tensor(rtVerArr(input, Trainset))
-    test_tensor.x = tf.tensor(rtVerArr(input, Testset))
-
-
-    let trt = flatten(rtVerArr(output, Testset))
-    let tet = flatten(rtVerArr(output, Trainset))
-    
-
-    train_tensor.y = tf.oneHot(tf.tensor(trt, 'int32'), 3)
-    test_tensor.y = tf.oneHot(tf.tensor(tet, 'int32'), 3)
-}
-
 function view_P(){
     $("#divide").click(function(){P.complie()})
     $('#see_table').click(function(){typeTable()})

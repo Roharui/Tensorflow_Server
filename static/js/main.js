@@ -171,11 +171,9 @@ function load() {
 
     view_P()
     
-    setNamingModel()
-    addTablink()
-    addTabMenu()
-
-    show_menu('input')
+    ModelMaker.setButton()
+    ModelMaker.AddButton()
+    ModelMaker.setMenu('input')
     
     $("#train").val("8")
     divide_ratio()
