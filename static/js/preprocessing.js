@@ -39,6 +39,8 @@ const P = {
                 y : tf.tensor(te_y)
             }
         }
+
+        ModelMaker.showLayer()
     },
 
     toXY(){

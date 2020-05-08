@@ -1,5 +1,4 @@
 
-var model = new tf.Sequential()
 
 const LayerType = {
     "input" : tf.layers.inputLayer,
@@ -50,7 +49,7 @@ const inputTag = {
 
     "activation" : {
         html() {
-            let result = $('<select name="dtype"></select>')
+            let result = $('<select name="activation"></select>')
             this.option.forEach(x => {
                 result.append($(`<option value='${x}'>${x}</option>`))
             })
@@ -64,6 +63,7 @@ const inputTag = {
 const inputVal = {
     "inputShape" : (ele) => {
         let result = []
+        if(ele.length == 0) {return null}
         ele.split(', ').forEach(x => {
             if(x == 'null'){
                 result.push(null)
@@ -79,12 +79,19 @@ const inputVal = {
             alert("You Can't insert Blank Space in Name")
             return "Error"
         }
+        else if(ele == ''){
+            return ModelMaker.cur_type + "_" + String(ModelMaker.id)
+        }
         return ele
     },
     "dtype" : (ele) => {
         return ele
     },
     "units" : (ele) => {
+        if(Number(ele) == 0){
+            alert("Unit Can't be Zero!")
+            return 'Error'
+        }
         return Number(ele)
     },
     "activation" : (ele) => {
@@ -95,32 +102,38 @@ const inputVal = {
 
 const ModelMaker = {
 
-    data : P.pData,
+    model : new tf.Sequential(),
 
-    input_Layer  : null,
-    output_Layer : null,
+    id : 0,
+    al : -1,
 
     model_name : 'Model',
 
     LayerArr : Array(),
 
+    cur_type : null,
+
     firstLayer : () => 
     {   
-        return { layer : {inputShape:[input.length], name:"INPUT", dtype:"float32"}, type : 'input'}
+        if(P.pData.x.length == 0){ return null }
+        return {inputShape:[P.pData.x[0].length], name:"INPUT", dtype:"float32", ltype : 'input', id: 'input'}
     },
     lastLayer  : () => 
     {
-        return { layer : {units:output.length, name:"OUTPUT"}, type : 'dense'} 
+        if(P.pData.y.length == 0){ return null }
+        return {units:P.pData.y[0].length, name:"OUTPUT", ltype : 'dense', id: 'output'} 
     },
 
     getLayer() {
         let inputs = $('#menu_content').find('input, select')
-        let result = {}
+        let result = {id : this.id, ltype: this.cur_type}
         let go = true
 
         $.each(inputs, function (index, item) {
             let c = $(item)
-            go = inputVal[c.attr('name')](c.val()) != 'Error'
+            if(inputVal[c.attr('name')](c.val()) == 'Error'){
+                go = false
+            }
          })
 
          if(!go){ 
@@ -129,9 +142,12 @@ const ModelMaker = {
 
         $.each(inputs, function (index, item) {  
             let c = $(item)
-            if(c.val().length == 0){return}
-            result[c.attr('name')] = inputVal[c.attr('name')](c.val())
+            let value = inputVal[c.attr('name')](c.val())
+            if(value == null){return}
+            result[c.attr('name')] = value
         })
+
+        this.id ++
 
         return result
     },
@@ -144,8 +160,9 @@ const ModelMaker = {
 
     setMenu(type){
         $('#menu_content').empty()
+        this.cur_type = type
 
-        let result = $('<div>')
+        let result = $(`<div>`)
 
         menuArr[type].map(x => {
             result.append(
@@ -173,84 +190,90 @@ const ModelMaker = {
     AddButton(){
         let x = $('<button class="btn">ADD</button>')
         x.click(function(){
-            console.log(ModelMaker.getLayer())
+            ModelMaker.LayerArr.push(ModelMaker.getLayer())
+            ModelMaker.setMenu(ModelMaker.cur_type)
+            ModelMaker.showLayer()
         })
         $('#design_controller').append(x)
-    }
+    },
 
+    AlterButton(){
+        let x = $('<button class="btn">Alter</button>')
+        x.click(function(){
+            let l = ModelMaker.getLayer()
+            l.id = ModelMaker.al
+            ModelMaker.LayerArr = ModelMaker.LayerArr.map(x => {
+                if(x.id == l.id){
+                    return l
+                }
+                return x
+            })
+            ModelMaker.setMenu(ModelMaker.cur_type)
+            ModelMaker.showLayer()
+            $(this).remove()
+        })
+        $('#design_controller').append(x)
+    },
+
+    convertLayer(layer){
+        return LayerType[layer.ltype](layer)
+    },
+
+    all_Layer() {
+        let larr = [this.firstLayer()]
+
+        this.LayerArr.forEach(x => {
+            larr.push(x)
+        })
+
+        larr.push(this.lastLayer())
+
+        return larr.filter(x => {
+            return x != null
+        })
+    },
+
+    makeModel(){
+        this.model.name = this.model_name
+
+        this.all_Layer().map(x => {
+            return this.convertLayer(x)
+        }).forEach(x => {
+            this.model.add(x)
+        })
+    },
+
+    showLayer(){
+        $('#design_content').empty()
+        //모델 시각화
+        this.all_Layer().forEach(x => {
+            $('#design_content').append(
+                layerAsType(x)
+            )
+        })
+    },
+
+    del(id){
+        this.LayerArr = this.LayerArr.filter(x => {return x.id != id})
+    },
+
+    alter(id){
+        let layer = this.LayerArr.filter(x => {return x.id == id})[0]
+        this.al = layer.id
+        this.setMenu(layer.ltype)
+        this.AlterButton()
+
+        for (let [key, value] of Object.entries(layer)) {
+            $('#menu_content').find(`[name=${key}]`).val(value)
+        }
+
+    }
 }
 
-
-var LayerArr = Array()
-var addLoc = -1
-
-
-function setNamingModel(){
-    $('#set-model-name').click(() => {NameModel()})
-}
-
-function addLayer(layerx, typex){
-    let result = { layer : layerx,
-                    type : typex}
-
-    if(addLoc == -1){
-        LayerArr.push(result)
-        return
-    }
-
-    LayerArr.splice(addLoc, 0, result)
-}
-
-function setLayer(){
-    model = new tf.Sequential()
-    NameModel()
-
-    let x = firstLayer()
-    let y = lastLayer()
-
-    if(input.length != 0){
-        model.add(LayerType[x.type](x.layer))
-    }
-    
-    LayerArr.forEach((i) => {
-        model.add(LayerType[i.type](i.layer))
-    })
-
-    if(output.length != 0)
-    {
-        model.add(LayerType[y.type](y.layer))
-    }
-
-    $('#model-name').val()
-    showLayer()
-}
 
 function modelSummary(){
     $('#summary_log').empty()
     model.summary(undefined, undefined, function(x) {
         $('#summary_log').append(`<p class="text-center">${x}</p>`)
     })
-}
-
-function showLayer(){
-    let num = 0
-    if(input.length != 0){
-        num --
-    }
-    $('#design_content').empty()
-    //모델 시각화
-    model.layers.forEach(x => {
-        $('#design_content').append(
-            layerAsType(x, num)
-        )
-        num ++
-    })
-}
-
-function delLayer(id){
-    id = $(id).index() - 1
-    console.log(id)
-    LayerArr.splice(id, 1)
-    setLayer()
-    showLayer()
 }

@@ -1,38 +1,45 @@
 
-
-function layerAsType(layer, num){
+function layerAsType(layer){
+    console.log(layer)
     let result = $('<div class="p-3 mb-2 bg-primary text-white"></div>')
+    result.attr('xid', layer.id)
     
     result.append($(`<h5>${layer.name}</h5>`))
 
-    if(layer.name == 'INPUT' || layer.name == "OUTPUT")
+    if(layer.id == 'input' || layer.id == 'output')
     {
         result.attr('class', "p-3 mb-2 bg-success text-white")
         return result
     }
 
-    result.click(function(){setStartLoc(this)})
-
     let del = $(`<button class="btn btn-danger">X</button>`)
 
     del.click(function(){delLayer(this)})
 
+    let alter = $(`<button class="btn btn-danger">Alter</button>`)
+
+    alter.click(function(){alterLayer(this)})
+
     result.append(del)
+    result.append(alter)
 
     return result
 }
 
-function setStartLoc(e){
+function delLayer(e){
     //warning
-    e = $(e)
+    e = $(e).parent()
 
-    clearStartLoc()
-    if(addLoc == e.index()){
-        addLoc = -1
-        return
-    }
-    addLoc = e.index()
-    e.attr('class', "p-3 mb-2 bg-warning text-white")
+    ModelMaker.del(e.attr('xid'))
+    ModelMaker.showLayer()
+}
+
+function alterLayer(e){
+    //warning
+    e = $(e).parent()
+
+    ModelMaker.alter(e.attr('xid'))
+    ModelMaker.showLayer()
 }
 
 function clearStartLoc(){
