@@ -12,6 +12,7 @@
         
 
         <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 
@@ -59,7 +60,7 @@
                     <span id="dataset_info"></span>
                     <div id="table"></div>
                     <hr>
-                    <div id="in_output" class="row">
+                    <div id="in_output" class="roww">
                         <div id="x_input" class="column">
                             <h5 class="text-center">INPUT</h5>
                             <div id="input_content" class="btn-group-vertical btn-group-toggle" data-toggle="buttons">
@@ -113,12 +114,53 @@
                     <hr>
                     <div class="row">
                         <div id="design_content" class="column"></div>
-                    <div id="summary_log" class="column alert"></div>
                     </div>
+                    <button class='btn' id="model_create_btn">생성</button>
                 </div>
 
                 <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
-                    <input type="file" id="model_input" multiple accept=".json">
+                    <h5>Compile</h5>
+                    <div id="model_compile" class="d-block p-2 bg-dark text-white rounded">
+                        <div class="row">
+                            <div class="col-sm text-center align-middle">
+                                <span class="d-inline p-2 bg-light text-dark rounded">optimizer : 
+                                    <select id="optimizer"></select>
+                                </span>
+                            </div>
+                            <div class="col-sm text-center align-middle">
+                                <span class="d-inline p-2 bg-light text-dark rounded">loss function : 
+                                    <select id="losses"></select>
+                                </span>
+                            </div>
+                            <div class="col-sm text-center align-middle">
+                                <button id="model_compile_btn" class="btn">컴파일</button>
+                            </div>
+                          </div>
+                        </div>
+                        <hr>
+                    <h5>Train</h5>
+                    <div>
+                        <div id="model_fit" class="d-block p-2 bg-dark text-white rounded">
+                            <div class="row">
+                                <div class="col-sm text-center align-middle">
+                                    <span class="d-inline p-2 bg-light text-dark rounded">epoch : 
+                                        <input type="number" id="epoch">
+                                    </span>
+                                </div>
+                                <div class="col-sm text-center align-middle">
+                                    <span class="d-inline p-2 bg-light text-dark rounded">batch size : 
+                                        <input type="number" id="batch_size">
+                                    </span>
+                                </div>
+                                <div class="col-sm text-center align-middle">
+                                    <button id="model_fit_btn" class="btn">학습하기!</button>
+                                </div>
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    </div>
                 </div>
                 <div></div>
             </div>

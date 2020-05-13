@@ -37,6 +37,8 @@ const dataset = {
             }
         }
 
+        this.dataShuffle()
+
         return `${dataset.data.length} rows ${dataset.cols.length} colums`
     },
 
@@ -50,6 +52,10 @@ const dataset = {
         this.output = $.map($('#y_output').find('input'), (x, num) => {
             return (x.checked?num:null)
         })
+    },
+
+    dataShuffle(){
+        this.data = shuffle(this.data)
     }
 
 }
@@ -162,6 +168,8 @@ function shuffle(array) {
     return array;
 }
 
+const Loder = {}
+
 
 function load() {
 
@@ -174,6 +182,8 @@ function load() {
     ModelMaker.setButton()
     ModelMaker.AddButton()
     ModelMaker.setMenu('input')
+    $('#model_create_btn').click(() => {ModelMaker.makeModel()})
+    load_learn()
     
     $("#train").val("8")
     divide_ratio()

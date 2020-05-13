@@ -1,6 +1,5 @@
 
 function layerAsType(layer){
-    console.log(layer)
     let result = $('<div class="p-3 mb-2 bg-primary text-white"></div>')
     result.attr('xid', layer.id)
     

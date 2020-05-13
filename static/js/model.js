@@ -226,7 +226,7 @@ const ModelMaker = {
             larr.push(x)
         })
 
-        larr.push(this.lastLayer())
+        //larr.push(this.lastLayer())
 
         return larr.filter(x => {
             return x != null
@@ -234,6 +234,7 @@ const ModelMaker = {
     },
 
     makeModel(){
+        this.model = new tf.Sequential()
         this.model.name = this.model_name
 
         this.all_Layer().map(x => {
@@ -241,6 +242,8 @@ const ModelMaker = {
         }).forEach(x => {
             this.model.add(x)
         })
+
+        this.modelSummary()
     },
 
     showLayer(){
@@ -267,13 +270,9 @@ const ModelMaker = {
             $('#menu_content').find(`[name=${key}]`).val(value)
         }
 
+    },
+
+    modelSummary(){
+        tfvis.show.modelSummary({ name: 'Model Summary', tab: 'Model Inspection'}, this.model)
     }
-}
-
-
-function modelSummary(){
-    $('#summary_log').empty()
-    model.summary(undefined, undefined, function(x) {
-        $('#summary_log').append(`<p class="text-center">${x}</p>`)
-    })
 }

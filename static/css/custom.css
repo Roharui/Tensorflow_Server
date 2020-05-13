@@ -19,7 +19,7 @@ div#menu_content{
 }
   
 /* Clear floats after the columns */
-.row:after {
+.roww:after {
     content: "";
     display: table;
     clear: both;
