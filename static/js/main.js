@@ -87,6 +87,34 @@ const Table = {
         table.append(tbody)
 
         location.append(table)
+    },
+
+    toTAbleEX(data, location){
+        location.empty()
+
+        let table = $('<table class="table table-striped"></table>')
+
+        var thead =  $('<thead class="thead-dark"></thead>')
+        //colname.forEach((x) => {
+        data.cols.forEach((x) => {
+            thead.append($(`<th scope="col">${String(x)}</th>`))
+        })
+
+        table.append(thead)
+
+        var tbody = $('<tbody></tbody>')
+
+        let tr = $('<tr></tr>')
+        data.data.forEach((y) => {
+            let td = $(`<td></td>`)
+            td.append(y)
+            tr.append(td)
+        })
+        tbody.append(tr)
+
+        table.append(tbody)
+
+        location.append(table)
     }
 }
 

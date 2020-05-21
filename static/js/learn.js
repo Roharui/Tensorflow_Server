@@ -32,17 +32,17 @@ const metrics = [
 
 const Learn = {
     compile(){
-        tfvis.visor().surface({name: 'My First Surface', tab: 'train'});
         ModelMaker.model.compile(
             {
-                optimizer: 'adam', 
-                loss: 'categoricalCrossentropy',
-                metrics: ["accuracy"]
+                optimizer: $('#optimizer').val(), 
+                loss: $('#losses').val(),
+                metrics: ["acc"]
             }
         )
     },
 
     async fit(){
+        tfvis.visor().open()
         const metrics = ['loss', 'acc'];
         const container = {
             name: 'show.fitCallbacks',
@@ -54,14 +54,64 @@ const Learn = {
         const callbacks = tfvis.show.fitCallbacks(container, metrics);
         return await ModelMaker.model.fit( P.tensor.train.x, P.tensor.train.y,
             {
-                batch_size : 10,
-                epochs : 5,
+                batch_size : parseInt($('#batch_size').val()),
+                epochs : parseInt($('#epoch').val()),
                 callbacks: callbacks
             }
         )
     },
 
+    predict(){
+        let result = []
+        dataset.input.forEach(x => {
+            result.push(parseFloat($('#prd_' + x).val()))
+        })
 
+        let tns = tf.tensor(Array(result))
+
+        var realResult = ModelMaker.model.predict(tns).argMax(1).arraySync()
+
+        if(P.usetLst.length != 0){
+            let dict = P.usetLst.map(x => {
+                let tmp = {}
+                Object.keys(x).forEach(y => {
+                    tmp[x[y]] = y
+                })
+                return tmp
+            })
+
+            let xx = dict.map((x, i) => {
+                return x[realResult[i]]
+            })
+            console.log(dict)
+            console.log(realResult)
+            $('#predict_result').text(xx)
+
+        }
+        else{
+            $('#predict_result').text(realResult)
+        }
+    },
+
+    evaluate() {
+        $('#test_result').empty()
+
+        let scalas = ModelMaker.model.evaluate(P.tensor.test.x, P.tensor.test.y, {
+            batchSize: 4,
+        });
+
+        let result = scalas.map(x => {
+            return x.dataSync()
+        })
+
+        let data = {
+            cols : ['loss', 'accuracy'],
+            data : Array(result)
+        }
+
+        Table.toTable(data, $('#test_result'))
+
+    }
 
 }
 
@@ -111,9 +161,38 @@ function load_learn(){
             $(`<option value="${x}">${x}</option>`)
         )
     })
+
+    $('#model_compile_btn').click(function(){ Learn.compile()})
+    $('#model_fit_btn').click(function(){ Learn.fit()})
+    $('#predict').click(function(){ Learn.predict() })
+    $('#random_row').click(function(){ getRandomRow() })
+    $('#evaluate').click(function(){ Learn.evaluate() })
     
 }
 
+function predict_load(){
+    let data = {
+        cols : dataset.input.map(x => {
+            return dataset.cols[x]
+        }),
+        data : dataset.input.map(x => {
+            return $('<input/>', {type: 'text', id:'prd_' + x})
+        })
+    }
+
+    Table.toTAbleEX(data, $('#prdict_random_table'))
+}
+
+function getRandomRow(){
+    $('#prdict_random_table_result').empty()
+
+    let data = {
+        cols : dataset.cols,
+        data : Array(dataset.data[Math.floor(Math.random() * dataset.data.length)])
+    }
+
+    Table.toTable(data, $('#prdict_random_table_result'))
+}
 
 
 /*

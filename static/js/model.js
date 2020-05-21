@@ -244,6 +244,7 @@ const ModelMaker = {
         })
 
         this.modelSummary()
+        predict_load()
     },
 
     showLayer(){
