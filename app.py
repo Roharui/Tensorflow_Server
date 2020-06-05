@@ -19,6 +19,14 @@ def dataset():
         readAsCsv(file.read().decode('utf8'))
     return redirect(url_for('index'))
 
+@app.route('/upload', methods=['POST'])
+def upload():
+    f = request.files['model.json']
+    f.save('C:/Users/user/Documents/project_py/Tensorflow_Server/data/model.json')
+    f = request.files['model.weights.bin']
+    f.save('C:/Users/user/Documents/project_py/Tensorflow_Server/data/model.weights.bin')
+    return "success"
+
 def readAsCsv(file):
     df = pd.read_csv(io.StringIO(file))
     print(df.head())

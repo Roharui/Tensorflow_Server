@@ -54,7 +54,7 @@ const Learn = {
         const callbacks = tfvis.show.fitCallbacks(container, metrics);
         return await ModelMaker.model.fit( P.tensor.train.x, P.tensor.train.y,
             {
-                batch_size : parseInt($('#batch_size').val()),
+                batchSize : parseInt($('#batch_size').val()),
                 epochs : parseInt($('#epoch').val()),
                 callbacks: callbacks
             }
@@ -110,7 +110,7 @@ const Learn = {
         }
 
         Table.toTable(data, $('#test_result'))
-
+        download.download_weight()
     }
 
 }
