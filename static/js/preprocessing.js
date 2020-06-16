@@ -28,6 +28,13 @@ const P = {
 
         $("#divide_result").html(`${tr_x.length} Train samples \n ${te_x.length} Test samples`)
 
+        if(USE_SERVER){ this.send_to_server({
+            tr_x : tr_x,
+            tr_y : tr_y,
+            te_x : te_x,
+            te_y : te_y
+        }) }
+
         this.tensor =  {
             train : {
                 x : tf.tensor(tr_x),
@@ -41,6 +48,19 @@ const P = {
         }
 
         ModelMaker.showLayer()
+    },
+
+    send_to_server(data){
+        console.log(data)
+        $.ajax({
+            url : `/dataset/${CODE}`,
+            type : 'POST',
+            contentType : 'application/json',
+            data : JSON.stringify(data),
+            success(data){
+                alert('Success!')
+            }
+        })
     },
 
     toXY(){

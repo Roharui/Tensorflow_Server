@@ -1,4 +1,19 @@
 
+let CODE = -1
+
+let USE_SERVER = false
+
+function getCode(){
+    $.ajax({
+        url : '/code',
+        type : 'POST',
+        success(data) { 
+            data = JSON.parse(data)
+            CODE = data["code"]
+        }
+    })
+}
+
 const dataset = {
     cols : Array(),
     data : Array(),
@@ -196,23 +211,42 @@ function shuffle(array) {
     return array;
 }
 
-const Loder = {}
+const Loder = {
+
+    fileLode(){
+        $("#fileinput").change(function(){Send()})
+        $('#train').change(function(){divide_ratio()})
+        $('#enroll').click(function(){P.do()})
+
+        view_P()
+    },
+
+    modelLode(){
+        ModelMaker.setButton()
+        ModelMaker.AddButton()
+        ModelMaker.setMenu('input')
+        $('#model_create_btn').click(() => {ModelMaker.makeModel()})
+        load_learn()
+    },
+
+    preLode(){
+        $("#train").val("8")
+        divide_ratio()
+    },
+
+    check_server(){
+        if(location.pathname == '/server'){
+            USE_SERVER = true
+            getCode()
+        }
+    }
+
+}
 
 
 function load() {
-
-    $("#fileinput").change(function(){Send()})
-    $('#train').change(function(){divide_ratio()})
-    $('#enroll').click(function(){P.do()})
-
-    view_P()
+    Object.keys(Loder).forEach(x => {
+        Loder[x]()
+    })
     
-    ModelMaker.setButton()
-    ModelMaker.AddButton()
-    ModelMaker.setMenu('input')
-    $('#model_create_btn').click(() => {ModelMaker.makeModel()})
-    load_learn()
-    
-    $("#train").val("8")
-    divide_ratio()
 }

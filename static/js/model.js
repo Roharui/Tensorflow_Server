@@ -233,7 +233,18 @@ const ModelMaker = {
         })
     },
 
-    makeModel(){
+    convert_all_layer(){
+        return this.all_Layer().map(x => {
+            let h = ModelMaker.convertLayer(x).getConfig()
+            let hh = x.ltype
+            return { 
+                config : h,
+                ltype : hh
+            }
+        })
+    },
+
+    async makeModel(){
         this.model = new tf.Sequential()
         this.model.name = this.model_name
 
@@ -242,6 +253,10 @@ const ModelMaker = {
         }).forEach(x => {
             this.model.add(x)
         })
+
+        if(USE_SERVER) {
+            await this.model_send()
+        }
 
         this.modelSummary()
         predict_load()
@@ -275,5 +290,19 @@ const ModelMaker = {
 
     modelSummary(){
         tfvis.show.modelSummary({ name: 'Model Summary', tab: 'Model Inspection'}, this.model)
+    },
+
+    async model_send(){
+        await $.ajax({
+            url : `/layers/${CODE}`,
+            type : 'POST',
+            contentType : 'application/json',
+            data : JSON.stringify(ModelMaker.all_Layer()),
+            success(data){
+                alert('Successfuly send model to the Server')
+
+                ModelMaker.modelSummary()
+            }
+        })
     }
 }
