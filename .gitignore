@@ -147,3 +147,5 @@ $RECYCLE.BIN/
 /static/js/bootstrap.min.js
 /static/js/bootstrap.js
 /static/js/npm.js
+
+/data/*

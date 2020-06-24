@@ -5,6 +5,7 @@ import numpy as np, pandas as pd
 import io
 import json
 from train import Model
+from code_creater import create_code
 
 app = Flask(__name__)
 
@@ -13,6 +14,8 @@ allow_file = ['application/vnd.ms-excel']
 count = 0
 
 codes = {}
+
+tr_model = {}
 
 @app.route('/')
 def index():
@@ -58,6 +61,24 @@ def compile(code):
 
     return json.dumps({'code' : 200})
 
+@app.route('/predict/<code>', methods=['POST'])
+def predict(code):
+    global count, codes
+
+    x = request.json
+
+    result = codes[str(count)].predict(x)
+
+    return json.dumps(str(result))
+
+@app.route('/evaluate/<code>', methods=['POST'])
+def evaluate(code):
+    global count, codes
+
+    result = codes[str(count)].evaluate()
+
+    return json.dumps(str(result))
+
 @app.route('/fit/<code>', methods=['POST'])
 def fit(code):
     global count, codes
@@ -77,6 +98,32 @@ def codeMaker():
     codes[str(count)] = Model()
 
     return json.dumps({'code' : count})
+
+@app.route('/server_upload/<code>', methods=['POST'])
+def uploader(code):
+    global count, codes, tr_model
+    x = request.json
+    model = codes[str(count)]
+
+    pcode = create_code()
+
+    model.save(pcode)
+
+    tr_model[pcode] = model
+
+    return json.dumps({'code' : pcode})
+
+@app.route('/model/<pcode>', methods=['POST'])
+def do_model(pcode):
+    global tr_model
+
+    x = request.json
+
+    model = tr_model[pcode]
+
+    result = model.predict(x)
+
+    return json.dumps(str(result))
 
 def readAsCsv(file):
     df = pd.read_csv(io.StringIO(file))

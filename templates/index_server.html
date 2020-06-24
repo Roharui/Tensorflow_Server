@@ -22,7 +22,7 @@
         <script src="{{url_for('static', filename = 'js/modelLayerDesign.js')}}"></script>
         <script src="{{url_for('static', filename = 'js/model.js')}}"></script>
         <script src="{{url_for('static', filename = 'js/learn_server.js')}}"></script>
-        <script src="{{url_for('static', filename = 'js/download.js')}}"></script>
+        <script src="{{url_for('static', filename = 'js/download_server.js')}}"></script>
         
         <script>
             $(document).ready(function(){
@@ -187,10 +187,8 @@
                 </div>
 
                 <div class="tab-pane fade" id="pills-result" role="tabpanel" aria-labelledby="pills-result-tab">
-                    <h5>Download</h5>
-                    <button onclick="download.download()">다운로드</button>
                     <h5>서버에 업로드</h5>
-                    <button id="upload_model">서버에 업로드</button>
+                    <button id="upload_model" onclick="download.upload_server()">서버에 업로드</button>
                 </div>
 
             </div>

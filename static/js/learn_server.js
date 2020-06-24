@@ -29,6 +29,10 @@ const metrics = [
     'accuracy'
 ]
 
+String.prototype.replaceAll = function(org, dest) {
+    return this.split(org).join(dest);
+}
+
 const Learn = {
     compile(){
         $.ajax({
@@ -61,6 +65,9 @@ const Learn = {
             }),
             success(data){
                 let d = JSON.parse(data)
+                d = d.replaceAll("'", '"')
+                d = d.replaceAll("False", "false")
+                d = JSON.parse(d)
                 console.log(d)
                 tfvis.show.history(container, d, d['params']['metrics'])
                 alert('Success!')
@@ -68,15 +75,27 @@ const Learn = {
         })
     },
 
-    predict(){
+    async predict(){
         let result = []
         dataset.input.forEach(x => {
             result.push(parseFloat($('#prd_' + x).val()))
         })
 
-        let tns = tf.tensor(Array(result))
+        let tns = Array(result)
 
-        var realResult = ModelMaker.model.predict(tns).argMax(1).arraySync()
+        var realResult;
+
+        await $.ajax({
+            url : `/predict/${CODE}`,
+            type : 'POST',
+            contentType : 'application/json',
+            data : JSON.stringify({
+                data : tns
+            }),
+            success(data){
+                realResult = JSON.parse(JSON.parse(data))
+            }
+        })
 
         if(P.usetLst.length != 0){
             let dict = P.usetLst.map(x => {
@@ -88,10 +107,9 @@ const Learn = {
             })
 
             let xx = dict.map((x, i) => {
+                console.log(realResult[i])
                 return x[realResult[i]]
             })
-            console.log(dict)
-            console.log(realResult)
             $('#predict_result').text(xx)
 
         }
@@ -100,15 +118,17 @@ const Learn = {
         }
     },
 
-    evaluate() {
+    async evaluate() {
         $('#test_result').empty()
 
-        let scalas = ModelMaker.model.evaluate(P.tensor.test.x, P.tensor.test.y, {
-            batchSize: 4,
-        });
+        let result;
 
-        let result = scalas.map(x => {
-            return x.dataSync()
+        await $.ajax({
+            url : `/evaluate/${CODE}`,
+            type : 'POST',
+            success(data){
+                result = JSON.parse(JSON.parse(data))
+            }
         })
 
         let data = {
@@ -117,7 +137,6 @@ const Learn = {
         }
 
         Table.toTable(data, $('#test_result'))
-        download.download_weight()
     }
 
 }
