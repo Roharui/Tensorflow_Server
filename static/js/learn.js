@@ -32,85 +32,107 @@ const metrics = [
 
 const Learn = {
     compile(){
-        ModelMaker.model.compile(
-            {
-                optimizer: $('#optimizer').val(), 
-                loss: $('#losses').val(),
-                metrics: ["acc"]
-            }
-        )
+        try{
+            ModelMaker.model.compile(
+                {
+                    optimizer: $('#optimizer').val(), 
+                    loss: $('#losses').val(),
+                    metrics: ["acc"]
+                }
+            )
+        }catch(e){
+            alert(e)
+            return
+        }
+        
     },
 
     async fit(){
-        tfvis.visor().open()
-        const metrics = ['loss', 'acc'];
-        const container = {
-            name: 'show.fitCallbacks',
-            tab: 'Training',
-            styles: {
-                height: '1000px'
-            }
-        };
-        const callbacks = tfvis.show.fitCallbacks(container, metrics);
-        return await ModelMaker.model.fit( P.tensor.train.x, P.tensor.train.y,
-            {
-                batchSize : parseInt($('#batch_size').val()),
-                epochs : parseInt($('#epoch').val()),
-                callbacks: callbacks
-            }
-        )
+        try{
+            tfvis.visor().open()
+            const metrics = ['loss', 'acc'];
+            const container = {
+                name: 'show.fitCallbacks',
+                tab: 'Training',
+                styles: {
+                    height: '1000px'
+                }
+            };
+            const callbacks = tfvis.show.fitCallbacks(container, metrics);
+            return await ModelMaker.model.fit( P.tensor.train.x, P.tensor.train.y,
+                {
+                    batchSize : parseInt($('#batch_size').val()),
+                    epochs : parseInt($('#epoch').val()),
+                    callbacks: callbacks
+                }
+            )
+        }catch(e){
+            alert(e)
+            return
+        }
+        
     },
 
     predict(){
-        let result = []
-        dataset.input.forEach(x => {
-            result.push(parseFloat($('#prd_' + x).val()))
-        })
+        try{
+            let result = []
+            dataset.input.forEach(x => {
+                result.push(parseFloat($('#prd_' + x).val()))
+            })
 
-        let tns = tf.tensor(Array(result))
+            let tns = tf.tensor(Array(result))
 
-        var realResult = ModelMaker.model.predict(tns).argMax(1).arraySync()
+            var realResult = ModelMaker.model.predict(tns).argMax(1).arraySync()
 
-        if(P.usetLst.length != 0){
-            let dict = P.usetLst.map(x => {
-                let tmp = {}
-                Object.keys(x).forEach(y => {
-                    tmp[x[y]] = y
+            if(P.usetLst.length != 0){
+                let dict = P.usetLst.map(x => {
+                    let tmp = {}
+                    Object.keys(x).forEach(y => {
+                        tmp[x[y]] = y
+                    })
+                    return tmp
                 })
-                return tmp
-            })
 
-            let xx = dict.map((x, i) => {
-                return x[realResult[i]]
-            })
-            console.log(dict)
-            console.log(realResult)
-            $('#predict_result').text(xx)
+                let xx = dict.map((x, i) => {
+                    return x[realResult[i]]
+                })
+                console.log(dict)
+                console.log(realResult)
+                $('#predict_result').text("예측한 결과값 : " + xx)
 
+            }
+            else{
+                $('#predict_result').text(realResult)
+            }
+        }catch(e){
+            alert(e)
+            return
         }
-        else{
-            $('#predict_result').text(realResult)
-        }
+        
     },
 
     evaluate() {
         $('#test_result').empty()
 
-        let scalas = ModelMaker.model.evaluate(P.tensor.test.x, P.tensor.test.y, {
-            batchSize: 4,
-        });
-
-        let result = scalas.map(x => {
-            return x.dataSync()
-        })
-
-        let data = {
-            cols : ['loss', 'accuracy'],
-            data : Array(result)
+        try{
+            let scalas = ModelMaker.model.evaluate(P.tensor.test.x, P.tensor.test.y, {
+                batchSize: 4,
+            });
+    
+            let result = scalas.map(x => {
+                return x.dataSync()
+            })
+    
+            let data = {
+                cols : ['loss', 'accuracy'],
+                data : Array(result)
+            }
+    
+            Table.toTable(data, $('#test_result'))
+        }catch(e){
+            alert(e)
+            return
         }
-
-        Table.toTable(data, $('#test_result'))
-        download.download_weight()
     }
 
 }
@@ -189,6 +211,12 @@ function getRandomRow(){
     let data = {
         cols : dataset.cols,
         data : Array(dataset.data[Math.floor(Math.random() * dataset.data.length)])
+    }
+
+    console.log(data)
+    if(data.data[0] == undefined){
+        alert("No Dataset!")
+        return
     }
 
     Table.toTable(data, $('#prdict_random_table_result'))

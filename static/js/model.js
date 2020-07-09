@@ -124,6 +124,10 @@ const ModelMaker = {
         return {units:P.pData.y[0].length, name:"OUTPUT", ltype : 'dense', id: 'output'} 
     },
 
+    defaultName(){
+        $('#model-name').val(this.model_name)
+    },
+
     getLayer() {
         let inputs = $('#menu_content').find('input, select')
         let result = {id : this.id, ltype: this.cur_type}
@@ -248,11 +252,22 @@ const ModelMaker = {
         this.model = new tf.Sequential()
         this.model.name = this.model_name
 
-        this.all_Layer().map(x => {
-            return this.convertLayer(x)
-        }).forEach(x => {
-            this.model.add(x)
-        })
+        if(this.all_Layer().length == 0){
+            alert("No Layers!")
+            return;
+        }
+
+        try {
+            this.all_Layer().map(x => {
+                return this.convertLayer(x)
+            }).forEach(x => {
+                this.model.add(x)
+            })
+        }catch(e){
+            console.log(e)
+            alert(e.toString())
+            return
+        }
 
         if(USE_SERVER) {
             await this.model_send()

@@ -17,6 +17,11 @@ const P = {
 
     complie() {
 
+        if(this.dataset.data.length == 0){
+            alert("No Dataset!")
+            return;
+        }
+
         let v = parseInt($('#train').val())
         let ratio = parseInt(this.dataset.data.length * (v/10))
 
@@ -64,8 +69,14 @@ const P = {
     },
 
     toXY(){
+
         let i = this.dataset.input
         let o = this.dataset.output
+
+        if((!i.length) || (!o.length)){
+            alert("No dataset!")
+            return this.pData;
+        }
 
         let data = this.transpose(this.dataset.data)
 
@@ -101,6 +112,11 @@ const P = {
 
     ohe(){
 
+        if(this.pData.y.length == 0){
+            alert("No Dataset!")
+            return
+        }
+
         let y = this.pData.y
 
         data = this.transpose(y)[0]
@@ -134,13 +150,13 @@ const P = {
     },
 
     divideDataSet(){
-        let dataset = this.dataset.data
-        if(dataset.length == 0){
+        let df = this.dataset.data
+        if(df.length == 0){
             alert("No DataSet!")
             return
         }
         let v = parseInt($('#train').val())
-        let ratio = parseInt(dataset.length * (v/10))
+        let ratio = parseInt(df.length * (v/10))
     
         //this.trainSet = dataset.slice(0, ratio)
         //this.testSet = dataset.slice(ratio, dataset.length)
@@ -157,6 +173,11 @@ const P = {
 //==== type table
 
 function typeTable(){
+
+    if(dataset.input.length == 0){ 
+        alert("No Dataset!")
+        return
+    }
 
     let table_data = {
         cols : dataset.input.map(x => {

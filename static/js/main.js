@@ -222,6 +222,7 @@ const Loder = {
     },
 
     modelLode(){
+        ModelMaker.defaultName()
         ModelMaker.setButton()
         ModelMaker.AddButton()
         ModelMaker.setMenu('input')

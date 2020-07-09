@@ -1,6 +1,7 @@
 
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense, InputLayer, Input
+import pickle
 import json
 import os
 
@@ -28,6 +29,7 @@ class Model:
         self.data = data
 
     def compile(self, config):
+        self.uSet = config['uSet']
         self.model.compile(loss=config['loss'], optimizer=config['optimizer'], metrics=['acc'])
 
     def fit(self, config):
@@ -45,6 +47,8 @@ class Model:
         os.mkdir(p)
         open(os.path.join(p, 'model.json'), 'w').write(self.model.to_json())
         self.model.save_weights(os.path.join(p, 'weight.h5'))
+        with open(os.path.join(p, 'uSet.json'), 'wb') as f:
+            pickle.dump(self.uSet, f)
 
             
 

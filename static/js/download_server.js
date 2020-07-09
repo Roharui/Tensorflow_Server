@@ -7,8 +7,7 @@ const download = {
             success(data){
                 console.log(data)
                 d = JSON.parse(data)
-                console.log(d)
-                $('#pills-result').append($(`<p>${d.code}</p>`))
+                $('#pills-result').append($(`<p>${location.origin}/model/${d.code}</p>`))
             }
         })
     }

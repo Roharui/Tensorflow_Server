@@ -42,7 +42,8 @@ const Learn = {
             data : JSON.stringify({
                 optimizer: $('#optimizer').val(), 
                 loss: $('#losses').val(),
-                metrics: ["acc"]
+                metrics: ["acc"],
+                uSet : P.usetLst
             }),
             success(){
                 alert('Success!')
@@ -110,7 +111,7 @@ const Learn = {
                 console.log(realResult[i])
                 return x[realResult[i]]
             })
-            $('#predict_result').text(xx)
+            $('#predict_result').text("예측한 결과값 : " + xx)
 
         }
         else{
